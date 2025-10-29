@@ -1,14 +1,25 @@
-import React from 'react'
+import { React,useState } from "react"
 
 const Player = ({title,symbol}) => {
+const[isEditing,setisEditing]=useState(false)
+function handleClick()
+{
+setisEditing(true)
+    
+}
+let content=<span className="player-name">{title}</span>;
+if(isEditing)
+    {
+    content=<input placeholder="Edit  Name" required type='text'/>
+    }
   return (
     <>
        <li>
             <span className="player">
-            <span className="player-name">{title}</span>
+            {content}
             <span className="player-symbol">{symbol}</span>
             </span>
-            <button>Edit</button>
+            <button onClick={handleClick}>Edit</button>
         </li>
     </>
   )
