@@ -5,8 +5,8 @@ return(
     <main>
     <div id='game-container'>
         <ol id='players'>
-        <Player title='Player-1' symbol='X'/>
-        <Player title='Player-2' symbol='O'/>
+        <Player initialname='Player-1' symbol='X'/>
+        <Player initialname='Player-2' symbol='O'/>
          </ol>
           Game Board
     </div>
