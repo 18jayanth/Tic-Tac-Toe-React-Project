@@ -8,16 +8,17 @@ const [activeplayer,setactiveplayer]=useState('X')
 const [gameturns,setgameturns]=useState([])
 
 function handleSelectsquare(rowIndex,colIndex){
-    setactiveplayer((currentplayer)=>currentplayer==='X'?'O':'X');
+    setactiveplayer((currentplayer)=>(currentplayer==='X'?'O':'X'));
     
     setgameturns((previousturns)=>{
     let currentplayer='X';
 
-    if(previousturns.length()>0 && previousturns[0].player==='X')
+    if(previousturns.length>0 && previousturns[0].player==='X'){
         currentplayer='O'
+    }
 
-        const updatedturns=[{square:{row:rowIndex,col:colIndex},
-        player:currentplayer},...previousturns]
+        const updatedturns=[
+        {square:{row:rowIndex,col:colIndex},player:currentplayer},...previousturns]
         return updatedturns;
     })
 }
@@ -29,7 +30,7 @@ return(
         <Player initialname='Player-1' symbol='X' isActive={activeplayer==='X'}/>
         <Player initialname='Player-2' symbol='O'  isActive={activeplayer==='O'}/>
          </ol>
-          <GameBoard onSelectsquare={handleSelectsquare} activeplayersymbol={activeplayer}/>
+          <GameBoard onSelectsquare={handleSelectsquare} turns={gameturns}/>
     </div>
     <Log/>
     </main>
