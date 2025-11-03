@@ -3,7 +3,12 @@ import GameBoard from "./components/GameBoard"
 import Log from "./components/Log"
 import { useState } from "react"
 import { WINNING_COMBINATIONS } from "./winning-combinations"
-const initalGameBoard=[
+import GameOver from "./components/GameOver"
+const PLAYERS={
+    X:'Player 1',
+    O:'Player 2'
+}
+const INITIAL_GAME_BOARD=[
         [null,null,null],
         [null,null,null],
         [null,null,null]
@@ -18,15 +23,25 @@ function dervivedActiveplayer(gameturns)
     return currentplayer;
 
 }
+function deriveWinner(gameBoard,players)
+{
+    let winner;
+    for(const combination of WINNING_COMBINATIONS)
+ {
+    const firstSquareSymbol=gameBoard[combination[0].row][combination[0].column]
+    const secondSquareSymbol=gameBoard[combination[1].row][combination[1].column]
+    const thirdSquareSymbol=gameBoard[combination[2].row][combination[2].column]
+    if(firstSquareSymbol && firstSquareSymbol===secondSquareSymbol && firstSquareSymbol===thirdSquareSymbol)
+    {
+        winner=players[firstSquareSymbol];
+    }
+ }
+ return winner;
 
-function App() {
-
-//const [activeplayer,setactiveplayer]=useState('X')
-const [gameturns,setgameturns]=useState([])
-
- const activePlayer=dervivedActiveplayer(gameturns)
- let winner;
- let gameBoard=initalGameBoard;
+}
+function deriveGameboard(gameturns)
+{
+let gameBoard=[...INITIAL_GAME_BOARD.map((array)=>[...array])]
  
  
 for(const turn of gameturns)
@@ -35,16 +50,25 @@ for(const turn of gameturns)
     const {row,col}=square;
     gameBoard[row][col]=player;
 }
-for(const combination of WINNING_COMBINATIONS)
- {
-    const firstSquareSymbol=gameBoard[combination[0].row][combination[0].column]
-    const secondSquareSymbol=gameBoard[combination[1].row][combination[1].column]
-    const thirdSquareSymbol=gameBoard[combination[2].row][combination[2].column]
-    if(firstSquareSymbol && firstSquareSymbol===secondSquareSymbol && firstSquareSymbol===thirdSquareSymbol)
-    {
-        winner=firstSquareSymbol;
-    }
- }
+return gameBoard;
+}
+
+function App() {
+//this state is to send to game over component when 
+//game is over to know who won
+//it should set only after we saved the name not when we edit
+const[players,setplayers]=useState(PLAYERS)
+//const [activeplayer,setactiveplayer]=useState('X')
+const [gameturns,setgameturns]=useState([])
+
+ const activePlayer=dervivedActiveplayer(gameturns)
+ 
+ //we need to keep copy of gameboard we are changing original game board
+ //so we cant restart the same from starting
+ 
+const gameBoard=deriveGameboard(gameturns);
+const winner=deriveWinner(gameBoard,players);
+ const hasDrawn=gameturns.length===9 && !winner;
 function handleSelectsquare(rowIndex,colIndex){
     //setactiveplayer((currentplayer)=>(currentplayer==='X'?'O':'X'));
     
@@ -60,15 +84,29 @@ function handleSelectsquare(rowIndex,colIndex){
         return updatedturns;
     })
 }
-
+function handleRestart()
+{
+    setgameturns([])
+}
+//it is wrong to lift the playernamem  state from player to APP
+//because the playername will render at every key stroke from input tag
+function handlePlayerNameChange(symbol,newname)
+{
+    setplayers(prevplayers=>{
+        return {
+            ...prevplayers,
+            [symbol]:newname
+        };
+    });
+}
 return(
     <main>
     <div id='game-container'>
         <ol id='players' className="highlight-player">
-        <Player initialname='Player-1' symbol='X' isActive={activePlayer==='X'}/>
-        <Player initialname='Player-2' symbol='O'  isActive={activePlayer==='O'}/>
+        <Player initialname={PLAYERS.X} symbol='X' isActive={activePlayer==='X'} onChangename={handlePlayerNameChange}/>
+        <Player initialname={PLAYERS.O} symbol='O'  isActive={activePlayer==='O'} onChangename={handlePlayerNameChange}/>
          </ol>
-         {winner && <p>You Won {winner}</p>}
+         {(winner||hasDrawn) && <GameOver winner={winner} onRestart={handleRestart}/>}
           <GameBoard onSelectsquare={handleSelectsquare} board={gameBoard}/>
     </div>
     <Log turns={gameturns}/>
